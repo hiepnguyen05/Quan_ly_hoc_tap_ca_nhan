@@ -1,0 +1,85 @@
+/* * CSS cho Khu vực Admin
+ * Màu chủ đạo: #7EBEEA (Xanh nhạt) và #FFFFFF (Trắng)
+ */
+
+body {
+    background-color: #f4f7f9;
+    /* Nền xám xanh rất nhạt */
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding-top: 56px;
+}
+
+/* Navbar trên cùng (Header) */
+.custom-navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Sidebar */
+.sidebar-sticky {
+    position: fixed;
+    top: 56px;
+    /* Dưới Navbar */
+    height: calc(100vh - 56px);
+    padding: 20px 0;
+    overflow-y: auto;
+    background-color: #ffffff;
+    /* Nền trắng */
+    border-right: 1px solid #e0e0e0;
+}
+
+.sidebar-sticky .nav-link {
+    font-weight: 500;
+    color: #333;
+    padding: 12px 20px;
+    border-left: 4px solid transparent;
+    /* Viền trái cho active */
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar-sticky .nav-link:hover {
+    background-color: #f0faff;
+    /* Nền xanh nhạt khi hover */
+    color: #005691;
+    border-left: 4px solid #7EBEEA;
+}
+
+/* Màu chủ đạo #7EBEEA cho mục active */
+.sidebar-sticky .nav-link.active {
+    background-color: #e6f7ff;
+    color: #005691 !important;
+    font-weight: 600;
+    border-left: 4px solid #7EBEEA;
+}
+
+/* Màu chữ xanh đậm (dùng cho tiêu đề) */
+.text-primary-custom {
+    color: #005691 !important;
+}
+
+/* Nội dung chính */
+main {
+    padding-top: 24px;
+}
+
+/* Card Thống kê */
+.stat-card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border-bottom: 4px solid #7EBEEA;
+    /* Viền màu chủ đạo */
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-icon {
+    font-size: 2.5rem;
+    color: #7EBEEA;
+    opacity: 0.8;
+}
