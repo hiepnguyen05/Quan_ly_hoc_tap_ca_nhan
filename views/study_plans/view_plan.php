@@ -273,7 +273,12 @@ $progress = calculatePlanProgress($planId);
                                                     
                                                     <!-- Các nút hành động -->
                                                     <div class="btn-group" role="group">
-                                                        <a href="create_stage.php?plan_id=<?php echo $plan['id']; ?>&edit=<?php echo $stage['id']; ?>" 
+                                                        <a href="view_stage.php?id=<?php echo $stage['id']; ?>" 
+                                                           class="btn btn-sm btn-outline-info" 
+                                                           title="Xem chi tiết">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        <a href="edit_stage.php?id=<?php echo $stage['id']; ?>" 
                                                            class="btn btn-sm btn-outline-primary" 
                                                            title="Chỉnh sửa">
                                                             <i class="bi bi-pencil"></i>

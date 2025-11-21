@@ -6,8 +6,17 @@ require_once dirname(__DIR__) . '/functions/db_connection.php';
  */
 function getUserSchedules($userId) {
     $conn = getDbConnection();
+    if (!$conn) {
+        return [];
+    }
+    
     $sql = "SELECT * FROM schedule WHERE user_id = ? ORDER BY created_at DESC";
     $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return [];
+    }
+    
     mysqli_stmt_bind_param($stmt, "i", $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -27,8 +36,17 @@ function getUserSchedules($userId) {
  */
 function getScheduleById($scheduleId, $userId) {
     $conn = getDbConnection();
+    if (!$conn) {
+        return false;
+    }
+    
     $sql = "SELECT * FROM schedule WHERE id = ? AND user_id = ?";
     $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
     mysqli_stmt_bind_param($stmt, "ii", $scheduleId, $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -45,11 +63,20 @@ function getScheduleById($scheduleId, $userId) {
  */
 function getScheduleItems($scheduleId) {
     $conn = getDbConnection();
+    if (!$conn) {
+        return [];
+    }
+    
     $sql = "SELECT si.*, sp.title as plan_title FROM schedule_items si 
             LEFT JOIN study_plans sp ON si.study_plan_id = sp.id 
             WHERE si.schedule_id = ? 
             ORDER BY si.day_of_week, si.time_slot";
     $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return [];
+    }
+    
     mysqli_stmt_bind_param($stmt, "i", $scheduleId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -69,6 +96,9 @@ function getScheduleItems($scheduleId) {
  */
 function getActiveScheduleForToday($userId) {
     $conn = getDbConnection();
+    if (!$conn) {
+        return false;
+    }
     
     // Lấy ngày hôm nay
     $today = date('Y-m-d');
@@ -83,6 +113,11 @@ function getActiveScheduleForToday($userId) {
             LIMIT 1";
     
     $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
     mysqli_stmt_bind_param($stmt, "iss", $userId, $today, $today);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -104,8 +139,17 @@ function getActiveScheduleForToday($userId) {
  */
 function getUserStudyPlansForSchedule($userId) {
     $conn = getDbConnection();
+    if (!$conn) {
+        return [];
+    }
+    
     $sql = "SELECT id, title FROM study_plans WHERE user_id = ? ORDER BY title";
     $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return [];
+    }
+    
     mysqli_stmt_bind_param($stmt, "i", $userId);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -124,26 +168,24 @@ function getUserStudyPlansForSchedule($userId) {
  * Tạo thời khóa biểu mới
  */
 function createSchedule($userId, $scheduleName, $startDate = null, $endDate = null, $isActive = 1) {
-    // Log đầu vào để debug
-    error_log("createSchedule được gọi với: userId=$userId, scheduleName=$scheduleName, startDate=" . ($startDate ?? 'null') . ", endDate=" . ($endDate ?? 'null') . ", isActive=$isActive");
-    
     $conn = getDbConnection();
-    
-    // Kiểm tra kết nối
     if (!$conn) {
-        error_log("Không thể kết nối đến database");
         return false;
     }
     
     // Kiểm tra xem user_id có tồn tại không
     $checkUserSql = "SELECT id FROM users WHERE id = ?";
     $checkUserStmt = mysqli_prepare($conn, $checkUserSql);
+    if (!$checkUserStmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
     mysqli_stmt_bind_param($checkUserStmt, "i", $userId);
     mysqli_stmt_execute($checkUserStmt);
     $userResult = mysqli_stmt_get_result($checkUserStmt);
     
     if (mysqli_num_rows($userResult) == 0) {
-        error_log("User ID $userId không tồn tại trong bảng users");
         mysqli_stmt_close($checkUserStmt);
         mysqli_close($conn);
         return false;
@@ -153,10 +195,7 @@ function createSchedule($userId, $scheduleName, $startDate = null, $endDate = nu
     
     $sql = "INSERT INTO schedule (user_id, schedule_name, start_date, end_date, is_active) VALUES (?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
-    
-    // Kiểm tra prepared statement
     if (!$stmt) {
-        error_log("Lỗi prepare statement: " . mysqli_error($conn));
         mysqli_close($conn);
         return false;
     }
@@ -165,29 +204,18 @@ function createSchedule($userId, $scheduleName, $startDate = null, $endDate = nu
     if ($startDate === '') $startDate = null;
     if ($endDate === '') $endDate = null;
     
-    // Log các giá trị bind
-    error_log("Binding parameters: userId=$userId, scheduleName=$scheduleName, startDate=" . ($startDate ?? 'null') . ", endDate=" . ($endDate ?? 'null') . ", isActive=$isActive");
-    
     mysqli_stmt_bind_param($stmt, "isssi", $userId, $scheduleName, $startDate, $endDate, $isActive);
     $result = mysqli_stmt_execute($stmt);
     
-    // Log kết quả execute
-    error_log("Kết quả execute: " . ($result ? "true" : "false"));
-    
     if ($result) {
         $scheduleId = mysqli_insert_id($conn);
-        error_log("Thời khóa biểu được tạo với ID: $scheduleId");
         mysqli_stmt_close($stmt);
         mysqli_close($conn);
         return $scheduleId;
     }
     
-    // In ra lỗi để debug
-    $error = mysqli_error($conn);
-    error_log("Lỗi tạo thời khóa biểu: " . $error);
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
-    
     return false;
 }
 
@@ -196,35 +224,33 @@ function createSchedule($userId, $scheduleName, $startDate = null, $endDate = nu
  */
 function updateSchedule($scheduleId, $userId, $scheduleName, $startDate = null, $endDate = null, $isActive = 1) {
     $conn = getDbConnection();
-    
-    // Kiểm tra kết nối
     if (!$conn) {
-        error_log("Không thể kết nối đến database");
         return false;
     }
     
-    // Kiểm tra xem user_id có tồn tại không
-    $checkUserSql = "SELECT id FROM users WHERE id = ?";
-    $checkUserStmt = mysqli_prepare($conn, $checkUserSql);
-    mysqli_stmt_bind_param($checkUserStmt, "i", $userId);
-    mysqli_stmt_execute($checkUserStmt);
-    $userResult = mysqli_stmt_get_result($checkUserStmt);
-    
-    if (mysqli_num_rows($userResult) == 0) {
-        error_log("User ID $userId không tồn tại trong bảng users");
-        mysqli_stmt_close($checkUserStmt);
+    // Kiểm tra xem thời khóa biểu có tồn tại và thuộc về user không
+    $checkScheduleSql = "SELECT id FROM schedule WHERE id = ? AND user_id = ?";
+    $checkScheduleStmt = mysqli_prepare($conn, $checkScheduleSql);
+    if (!$checkScheduleStmt) {
         mysqli_close($conn);
         return false;
     }
     
-    mysqli_stmt_close($checkUserStmt);
+    mysqli_stmt_bind_param($checkScheduleStmt, "ii", $scheduleId, $userId);
+    mysqli_stmt_execute($checkScheduleStmt);
+    $scheduleResult = mysqli_stmt_get_result($checkScheduleStmt);
+    
+    if (mysqli_num_rows($scheduleResult) == 0) {
+        mysqli_stmt_close($checkScheduleStmt);
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_close($checkScheduleStmt);
     
     $sql = "UPDATE schedule SET schedule_name = ?, start_date = ?, end_date = ?, is_active = ? WHERE id = ? AND user_id = ?";
     $stmt = mysqli_prepare($conn, $sql);
-    
-    // Kiểm tra prepared statement
     if (!$stmt) {
-        error_log("Lỗi prepare statement: " . mysqli_error($conn));
         mysqli_close($conn);
         return false;
     }
@@ -233,23 +259,15 @@ function updateSchedule($scheduleId, $userId, $scheduleName, $startDate = null, 
     if ($startDate === '') $startDate = null;
     if ($endDate === '') $endDate = null;
     
+    // Sửa lỗi thứ tự tham số bind - phải khớp với thứ tự trong câu SQL
     mysqli_stmt_bind_param($stmt, "sssiii", $scheduleName, $startDate, $endDate, $isActive, $scheduleId, $userId);
     $result = mysqli_stmt_execute($stmt);
-    
-    // Kiểm tra số hàng đã cập nhật
-    $affectedRows = mysqli_stmt_affected_rows($stmt);
-    
-    // In ra lỗi để debug
-    if (!$result) {
-        $error = mysqli_error($conn);
-        error_log("Lỗi cập nhật thời khóa biểu: " . $error);
-    }
     
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
     
-    // Trả về true nếu có ít nhất một hàng được cập nhật
-    return $result && $affectedRows >= 0;
+    // Trả về true nếu thành công
+    return $result;
 }
 
 /**
@@ -257,16 +275,59 @@ function updateSchedule($scheduleId, $userId, $scheduleName, $startDate = null, 
  */
 function addScheduleItem($scheduleId, $studyPlanId, $dayOfWeek, $timeSlot) {
     $conn = getDbConnection();
+    if (!$conn) {
+        return false;
+    }
+    
+    // Kiểm tra xem thời khóa biểu có tồn tại không
+    $checkScheduleSql = "SELECT id FROM schedule WHERE id = ?";
+    $checkScheduleStmt = mysqli_prepare($conn, $checkScheduleSql);
+    if (!$checkScheduleStmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_bind_param($checkScheduleStmt, "i", $scheduleId);
+    mysqli_stmt_execute($checkScheduleStmt);
+    $scheduleResult = mysqli_stmt_get_result($checkScheduleStmt);
+    
+    if (mysqli_num_rows($scheduleResult) == 0) {
+        mysqli_stmt_close($checkScheduleStmt);
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_close($checkScheduleStmt);
+    
+    // Kiểm tra xem kế hoạch học tập có tồn tại không
+    $checkPlanSql = "SELECT id FROM study_plans WHERE id = ?";
+    $checkPlanStmt = mysqli_prepare($conn, $checkPlanSql);
+    if (!$checkPlanStmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_bind_param($checkPlanStmt, "i", $studyPlanId);
+    mysqli_stmt_execute($checkPlanStmt);
+    $planResult = mysqli_stmt_get_result($checkPlanStmt);
+    
+    if (mysqli_num_rows($planResult) == 0) {
+        mysqli_stmt_close($checkPlanStmt);
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_close($checkPlanStmt);
+    
     $sql = "INSERT INTO schedule_items (schedule_id, study_plan_id, day_of_week, time_slot) VALUES (?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
     mysqli_stmt_bind_param($stmt, "iiss", $scheduleId, $studyPlanId, $dayOfWeek, $timeSlot);
     $result = mysqli_stmt_execute($stmt);
-    
-    // In ra lỗi để debug
-    if (!$result) {
-        $error = mysqli_error($conn);
-        error_log("Lỗi thêm môn học vào thời khóa biểu: " . $error);
-    }
     
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
@@ -278,18 +339,40 @@ function addScheduleItem($scheduleId, $studyPlanId, $dayOfWeek, $timeSlot) {
  */
 function deleteAllScheduleItems($scheduleId, $userId) {
     $conn = getDbConnection();
-    $sql = "DELETE si FROM schedule_items si 
-            JOIN schedule s ON si.schedule_id = s.id 
-            WHERE s.id = ? AND s.user_id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ii", $scheduleId, $userId);
-    $result = mysqli_stmt_execute($stmt);
-    
-    // In ra lỗi để debug
-    if (!$result) {
-        $error = mysqli_error($conn);
-        error_log("Lỗi xóa tất cả môn học khỏi thời khóa biểu: " . $error);
+    if (!$conn) {
+        return false;
     }
+    
+    // Kiểm tra xem thời khóa biểu có tồn tại và thuộc về user không
+    $checkScheduleSql = "SELECT id FROM schedule WHERE id = ? AND user_id = ?";
+    $checkScheduleStmt = mysqli_prepare($conn, $checkScheduleSql);
+    if (!$checkScheduleStmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_bind_param($checkScheduleStmt, "ii", $scheduleId, $userId);
+    mysqli_stmt_execute($checkScheduleStmt);
+    $scheduleResult = mysqli_stmt_get_result($checkScheduleStmt);
+    
+    if (mysqli_num_rows($scheduleResult) == 0) {
+        mysqli_stmt_close($checkScheduleStmt);
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_close($checkScheduleStmt);
+    
+    // Sửa lỗi SQL - không cần JOIN để xóa các môn học trong thời khóa biểu
+    $sql = "DELETE FROM schedule_items WHERE schedule_id = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_bind_param($stmt, "i", $scheduleId);
+    $result = mysqli_stmt_execute($stmt);
     
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
@@ -301,16 +384,19 @@ function deleteAllScheduleItems($scheduleId, $userId) {
  */
 function deleteSchedule($scheduleId, $userId) {
     $conn = getDbConnection();
+    if (!$conn) {
+        return false;
+    }
+    
     $sql = "DELETE FROM schedule WHERE id = ? AND user_id = ?";
     $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
     mysqli_stmt_bind_param($stmt, "ii", $scheduleId, $userId);
     $result = mysqli_stmt_execute($stmt);
-    
-    // In ra lỗi để debug
-    if (!$result) {
-        $error = mysqli_error($conn);
-        error_log("Lỗi xóa thời khóa biểu: " . $error);
-    }
     
     mysqli_stmt_close($stmt);
     mysqli_close($conn);
@@ -322,18 +408,42 @@ function deleteSchedule($scheduleId, $userId) {
  */
 function deleteScheduleItem($itemId, $userId) {
     $conn = getDbConnection();
-    $sql = "DELETE si FROM schedule_items si 
-            JOIN schedule s ON si.schedule_id = s.id 
-            WHERE si.id = ? AND s.user_id = ?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ii", $itemId, $userId);
-    $result = mysqli_stmt_execute($stmt);
-    
-    // In ra lỗi để debug
-    if (!$result) {
-        $error = mysqli_error($conn);
-        error_log("Lỗi xóa môn học khỏi thời khóa biểu: " . $error);
+    if (!$conn) {
+        return false;
     }
+    
+    // Kiểm tra xem item có tồn tại và thuộc về user không
+    $checkItemSql = "SELECT si.id FROM schedule_items si 
+                     JOIN schedule s ON si.schedule_id = s.id 
+                     WHERE si.id = ? AND s.user_id = ?";
+    $checkItemStmt = mysqli_prepare($conn, $checkItemSql);
+    if (!$checkItemStmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_bind_param($checkItemStmt, "ii", $itemId, $userId);
+    mysqli_stmt_execute($checkItemStmt);
+    $itemResult = mysqli_stmt_get_result($checkItemStmt);
+    
+    if (mysqli_num_rows($itemResult) == 0) {
+        mysqli_stmt_close($checkItemStmt);
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_close($checkItemStmt);
+    
+    // Sửa lỗi SQL - chỉ cần xóa item theo ID
+    $sql = "DELETE FROM schedule_items WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        mysqli_close($conn);
+        return false;
+    }
+    
+    mysqli_stmt_bind_param($stmt, "i", $itemId);
+    $result = mysqli_stmt_execute($stmt);
     
     mysqli_stmt_close($stmt);
     mysqli_close($conn);

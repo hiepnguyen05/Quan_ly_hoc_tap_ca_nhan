@@ -24,10 +24,12 @@ mysqli_close($conn);
 // Xử lý thông báo
 $successMessage = $_SESSION['success_message'] ?? '';
 $errorMessage = $_SESSION['error_message'] ?? '';
+$warningMessage = $_SESSION['warning_message'] ?? '';
 
 // Xóa thông báo sau khi hiển thị
 unset($_SESSION['success_message']);
 unset($_SESSION['error_message']);
+unset($_SESSION['warning_message']);
 ?>
 
 <!DOCTYPE html>
@@ -66,6 +68,13 @@ unset($_SESSION['error_message']);
                 <?php if ($errorMessage): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?php echo htmlspecialchars($errorMessage); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if ($warningMessage): ?>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <?php echo htmlspecialchars($warningMessage); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
@@ -219,15 +228,21 @@ unset($_SESSION['error_message']);
                                                         </tbody>
                                                     </table>
                                                 </div>
+                                                
+                                                <div class="mt-3">
+                                                    <a href="view_schedule.php?id=<?php echo $schedule['id']; ?>" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-eye"></i> Xem chi tiết
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <div class="text-center py-5">
                                         <i class="bi bi-calendar-x" style="font-size: 3rem; color: #ccc;"></i>
-                                        <p class="mt-3">Chưa có thời khóa biểu nào. Hãy tạo thời khóa biểu đầu tiên của bạn!</p>
+                                        <p class="mt-3">Bạn chưa có thời khóa biểu nào.</p>
                                         <a href="create_schedule.php" class="btn btn-primary">
-                                            <i class="bi bi-plus-lg"></i> Thêm Thời khóa biểu
+                                            <i class="bi bi-plus-lg"></i> Tạo thời khóa biểu đầu tiên
                                         </a>
                                     </div>
                                 <?php endif; ?>

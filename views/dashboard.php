@@ -90,6 +90,37 @@ $dayMapping = [
     'Sunday' => 'sunday'
 ];
 $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
+
+// Xác định khung thời gian hiện tại (sáng, chiều, tối)
+$currentTimeSlot = '';
+$currentHour = date('H');
+if ($currentHour >= 7 && $currentHour < 11) {
+    $currentTimeSlot = 'morning';
+} elseif ($currentHour >= 13 && $currentHour < 17) {
+    $currentTimeSlot = 'afternoon';
+} elseif ($currentHour >= 19 && $currentHour < 21) {
+    $currentTimeSlot = 'evening';
+}
+
+// Hàm kiểm tra xem có môn học nào trong ô thời khóa biểu không
+function hasScheduleItem($scheduleItems, $day, $timeSlot) {
+    foreach ($scheduleItems as $item) {
+        if ($item['day_of_week'] === $day && $item['time_slot'] === $timeSlot) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Hàm kiểm tra xem ô thời khóa biểu có phải là ô hiện tại không
+function isCurrentTimeSlot($currentDay, $day, $currentTimeSlot, $timeSlot) {
+    return $currentDay === $day && $currentTimeSlot === $timeSlot;
+}
+
+// Hàm kiểm tra xem ô có thuộc ngày hiện tại không
+function isCurrentDay($currentDay, $day) {
+    return $currentDay === $day;
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -106,6 +137,12 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
             background-color: #EFF6FF !important;
             border-left: 4px solid #3b82f6 !important;
             font-weight: bold;
+        }
+        .current-time-highlight {
+            background-color: #dbeafe !important;
+            border: 2px solid #3b82f6 !important;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
         }
         .schedule-table th.today-header {
             background-color: #3b82f6 !important;
@@ -310,7 +347,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                         <!-- Morning -->
                                         <tr>
                                             <td>Sáng (7h-11h)</td>
-                                            <td class="<?php echo $currentDay === 'monday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'monday') && hasScheduleItem($todaySchedule['items'], 'monday', 'morning')) ? (isCurrentTimeSlot($currentDay, 'monday', $currentTimeSlot, 'morning') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'monday' && $item['time_slot'] === 'morning') {
@@ -320,7 +357,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'tuesday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'tuesday') && hasScheduleItem($todaySchedule['items'], 'tuesday', 'morning')) ? (isCurrentTimeSlot($currentDay, 'tuesday', $currentTimeSlot, 'morning') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'tuesday' && $item['time_slot'] === 'morning') {
@@ -330,7 +367,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'wednesday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'wednesday') && hasScheduleItem($todaySchedule['items'], 'wednesday', 'morning')) ? (isCurrentTimeSlot($currentDay, 'wednesday', $currentTimeSlot, 'morning') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'wednesday' && $item['time_slot'] === 'morning') {
@@ -340,7 +377,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'thursday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'thursday') && hasScheduleItem($todaySchedule['items'], 'thursday', 'morning')) ? (isCurrentTimeSlot($currentDay, 'thursday', $currentTimeSlot, 'morning') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'thursday' && $item['time_slot'] === 'morning') {
@@ -350,7 +387,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'friday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'friday') && hasScheduleItem($todaySchedule['items'], 'friday', 'morning')) ? (isCurrentTimeSlot($currentDay, 'friday', $currentTimeSlot, 'morning') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'friday' && $item['time_slot'] === 'morning') {
@@ -360,7 +397,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'saturday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'saturday') && hasScheduleItem($todaySchedule['items'], 'saturday', 'morning')) ? (isCurrentTimeSlot($currentDay, 'saturday', $currentTimeSlot, 'morning') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'saturday' && $item['time_slot'] === 'morning') {
@@ -370,7 +407,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'sunday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'sunday') && hasScheduleItem($todaySchedule['items'], 'sunday', 'morning')) ? (isCurrentTimeSlot($currentDay, 'sunday', $currentTimeSlot, 'morning') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'sunday' && $item['time_slot'] === 'morning') {
@@ -384,7 +421,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                         <!-- Afternoon -->
                                         <tr>
                                             <td>Chiều (13h-17h)</td>
-                                            <td class="<?php echo $currentDay === 'monday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'monday') && hasScheduleItem($todaySchedule['items'], 'monday', 'afternoon')) ? (isCurrentTimeSlot($currentDay, 'monday', $currentTimeSlot, 'afternoon') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'monday' && $item['time_slot'] === 'afternoon') {
@@ -394,7 +431,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'tuesday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'tuesday') && hasScheduleItem($todaySchedule['items'], 'tuesday', 'afternoon')) ? (isCurrentTimeSlot($currentDay, 'tuesday', $currentTimeSlot, 'afternoon') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'tuesday' && $item['time_slot'] === 'afternoon') {
@@ -404,7 +441,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'wednesday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'wednesday') && hasScheduleItem($todaySchedule['items'], 'wednesday', 'afternoon')) ? (isCurrentTimeSlot($currentDay, 'wednesday', $currentTimeSlot, 'afternoon') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'wednesday' && $item['time_slot'] === 'afternoon') {
@@ -414,7 +451,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'thursday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'thursday') && hasScheduleItem($todaySchedule['items'], 'thursday', 'afternoon')) ? (isCurrentTimeSlot($currentDay, 'thursday', $currentTimeSlot, 'afternoon') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'thursday' && $item['time_slot'] === 'afternoon') {
@@ -424,7 +461,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'friday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'friday') && hasScheduleItem($todaySchedule['items'], 'friday', 'afternoon')) ? (isCurrentTimeSlot($currentDay, 'friday', $currentTimeSlot, 'afternoon') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'friday' && $item['time_slot'] === 'afternoon') {
@@ -434,7 +471,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'saturday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'saturday') && hasScheduleItem($todaySchedule['items'], 'saturday', 'afternoon')) ? (isCurrentTimeSlot($currentDay, 'saturday', $currentTimeSlot, 'afternoon') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'saturday' && $item['time_slot'] === 'afternoon') {
@@ -444,7 +481,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'sunday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'sunday') && hasScheduleItem($todaySchedule['items'], 'sunday', 'afternoon')) ? (isCurrentTimeSlot($currentDay, 'sunday', $currentTimeSlot, 'afternoon') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'sunday' && $item['time_slot'] === 'afternoon') {
@@ -458,7 +495,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                         <!-- Evening -->
                                         <tr>
                                             <td>Tối (19h-21h)</td>
-                                            <td class="<?php echo $currentDay === 'monday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'monday') && hasScheduleItem($todaySchedule['items'], 'monday', 'evening')) ? (isCurrentTimeSlot($currentDay, 'monday', $currentTimeSlot, 'evening') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'monday' && $item['time_slot'] === 'evening') {
@@ -468,7 +505,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'tuesday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'tuesday') && hasScheduleItem($todaySchedule['items'], 'tuesday', 'evening')) ? (isCurrentTimeSlot($currentDay, 'tuesday', $currentTimeSlot, 'evening') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'tuesday' && $item['time_slot'] === 'evening') {
@@ -478,7 +515,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'wednesday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'wednesday') && hasScheduleItem($todaySchedule['items'], 'wednesday', 'evening')) ? (isCurrentTimeSlot($currentDay, 'wednesday', $currentTimeSlot, 'evening') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'wednesday' && $item['time_slot'] === 'evening') {
@@ -488,7 +525,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'thursday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'thursday') && hasScheduleItem($todaySchedule['items'], 'thursday', 'evening')) ? (isCurrentTimeSlot($currentDay, 'thursday', $currentTimeSlot, 'evening') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'thursday' && $item['time_slot'] === 'evening') {
@@ -498,7 +535,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'friday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'friday') && hasScheduleItem($todaySchedule['items'], 'friday', 'evening')) ? (isCurrentTimeSlot($currentDay, 'friday', $currentTimeSlot, 'evening') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'friday' && $item['time_slot'] === 'evening') {
@@ -508,7 +545,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'saturday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'saturday') && hasScheduleItem($todaySchedule['items'], 'saturday', 'evening')) ? (isCurrentTimeSlot($currentDay, 'saturday', $currentTimeSlot, 'evening') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'saturday' && $item['time_slot'] === 'evening') {
@@ -518,7 +555,7 @@ $currentDay = $dayMapping[$currentDayOfWeek] ?? 'monday';
                                                 }
                                                 ?>
                                             </td>
-                                            <td class="<?php echo $currentDay === 'sunday' ? 'today-highlight' : ''; ?>">
+                                            <td class="<?php echo (isCurrentDay($currentDay, 'sunday') && hasScheduleItem($todaySchedule['items'], 'sunday', 'evening')) ? (isCurrentTimeSlot($currentDay, 'sunday', $currentTimeSlot, 'evening') ? 'current-time-highlight' : 'today-highlight') : ''; ?>">
                                                 <?php 
                                                 foreach ($todaySchedule['items'] as $item) {
                                                     if ($item['day_of_week'] === 'sunday' && $item['time_slot'] === 'evening') {

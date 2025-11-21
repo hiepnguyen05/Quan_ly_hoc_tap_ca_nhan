@@ -69,14 +69,16 @@ function isUsernameExists($conn, $username) {
 }
 
 function addUser($conn, $username, $full_name, $email, $password) {
-    // Lưu mật khẩu dưới dạng plain text (trong thực tế nên dùng password_hash)
+    // Băm mật khẩu trước khi lưu vào database
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    
     $sql = "INSERT INTO users (username, password, email, full_name) VALUES (?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
     
     if ($stmt) {
         // Tạo các biến riêng biệt để tránh lỗi truyền tham chiếu
         $user = $username;
-        $pass = $password;
+        $pass = $hashedPassword;  // Sử dụng mật khẩu đã băm
         $mail = $email;
         $name = $full_name;
         

@@ -26,8 +26,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         $result = mysqli_stmt_get_result($stmt);
         
         if ($user = mysqli_fetch_assoc($result)) {
-            // Kiểm tra mật khẩu
-            if ($password === $user['password']) { // Trong thực tế nên dùng password_verify()
+            // Kiểm tra mật khẩu bằng password_verify thay vì so sánh trực tiếp
+            if (password_verify($password, $user['password'])) {
                 // Đăng nhập thành công
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];

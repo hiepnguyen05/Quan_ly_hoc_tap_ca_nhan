@@ -32,6 +32,69 @@ function getPlanStages($planId) {
 }
 
 /**
+ * Lấy giai đoạn cuối cùng của một kế hoạch học tập
+ * @param int $planId ID kế hoạch
+ * @return array|null Thông tin giai đoạn cuối cùng hoặc null nếu không có
+ */
+function getLastStageOfPlan($planId) {
+    $conn = getDbConnection();
+    
+    $sql = "SELECT * FROM plan_stages WHERE plan_id = ? ORDER BY created_at DESC LIMIT 1";
+    $stmt = mysqli_prepare($conn, $sql);
+    
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "i", $planId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if (mysqli_num_rows($result) > 0) {
+            $stage = mysqli_fetch_assoc($result);
+            mysqli_stmt_close($stmt);
+            mysqli_close($conn);
+            return $stage;
+        }
+        
+        mysqli_stmt_close($stmt);
+    }
+    
+    mysqli_close($conn);
+    return null;
+}
+
+/**
+ * Lấy thông tin một giai đoạn theo ID
+ * @param int $stageId ID giai đoạn
+ * @param int $userId ID người dùng (để kiểm tra quyền)
+ * @return array|null Thông tin giai đoạn hoặc null nếu không tìm thấy
+ */
+function getStageById($stageId, $userId) {
+    $conn = getDbConnection();
+    
+    $sql = "SELECT ps.* FROM plan_stages ps 
+            JOIN study_plans sp ON ps.plan_id = sp.id 
+            WHERE ps.id = ? AND sp.user_id = ? LIMIT 1";
+    $stmt = mysqli_prepare($conn, $sql);
+    
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "ii", $stageId, $userId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if (mysqli_num_rows($result) > 0) {
+            $stage = mysqli_fetch_assoc($result);
+            mysqli_stmt_close($stmt);
+            mysqli_close($conn);
+            return $stage;
+        }
+        
+        mysqli_stmt_close($stmt);
+    }
+    
+    mysqli_close($conn);
+    return null;
+}
+
+/**
  * Tạo giai đoạn mới cho kế hoạch học tập
  * @param int $planId ID kế hoạch
  * @param string $title Tiêu đề giai đoạn
@@ -108,39 +171,6 @@ function updateStageStatus($stageId, $userId, $status) {
     
     mysqli_close($conn);
     return false;
-}
-
-/**
- * Lấy thông tin một giai đoạn theo ID
- * @param int $stageId ID giai đoạn
- * @param int $userId ID người dùng (để kiểm tra quyền)
- * @return array|null Thông tin giai đoạn hoặc null nếu không tìm thấy
- */
-function getStageById($stageId, $userId) {
-    $conn = getDbConnection();
-    
-    $sql = "SELECT ps.* FROM plan_stages ps 
-            JOIN study_plans sp ON ps.plan_id = sp.id 
-            WHERE ps.id = ? AND sp.user_id = ? LIMIT 1";
-    $stmt = mysqli_prepare($conn, $sql);
-    
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, "ii", $stageId, $userId);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-        
-        if (mysqli_num_rows($result) > 0) {
-            $stage = mysqli_fetch_assoc($result);
-            mysqli_stmt_close($stmt);
-            mysqli_close($conn);
-            return $stage;
-        }
-        
-        mysqli_stmt_close($stmt);
-    }
-    
-    mysqli_close($conn);
-    return null;
 }
 
 /**

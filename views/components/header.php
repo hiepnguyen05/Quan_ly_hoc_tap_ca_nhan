@@ -36,7 +36,7 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Hồ sơ</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="../handle/logout_process.php"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
+                        <li><a class="dropdown-item" href="/BaiTapLon/handle/logout_process.php"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
                     </ul>
                 </div>
             </div>

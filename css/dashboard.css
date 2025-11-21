@@ -343,11 +343,12 @@ header {
   font-weight: 500;
   padding: 0.625rem 1rem;
   transition: all 0.2s ease;
-  border: none;
+  border: 1px solid transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 40px;
+  box-shadow: none;
 }
 
 .btn i {
@@ -355,30 +356,37 @@ header {
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background: linear-gradient(to right, var(--blue-gradient-start), var(--blue-gradient-end));
   color: var(--white);
+  border: none;
+  box-shadow: 0 10px 15px rgba(59, 130, 246, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: rgba(3, 2, 19, 0.9);
+  background: linear-gradient(to right, var(--blue-gradient-end), var(--blue-gradient-start));
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 20px rgba(59, 130, 246, 0.25);
 }
 
 .btn-secondary {
-  background-color: var(--gray-200);
+  background-color: var(--white);
   color: var(--gray-700);
+  border-color: var(--gray-300);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .btn-secondary:hover {
-  background-color: var(--gray-300);
+  background-color: var(--gray-100);
+  border-color: var(--gray-400);
+  color: var(--gray-900);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.08);
 }
 
 .btn-success {
   background-color: var(--green-600);
   color: var(--white);
+  border: none;
 }
 
 .btn-success:hover {
@@ -390,10 +398,12 @@ header {
 .btn-warning {
   background-color: var(--orange-600);
   color: var(--white);
+  border: none;
 }
 
 .btn-warning:hover {
-  background-color: #d97706;
+  background-color: var(--orange-600);
+  filter: brightness(0.9);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
@@ -401,6 +411,7 @@ header {
 .btn-danger {
   background-color: var(--red-600);
   color: var(--white);
+  border: none;
 }
 
 .btn-danger:hover {
@@ -412,10 +423,11 @@ header {
 .btn-info {
   background-color: var(--blue-600);
   color: var(--white);
+  border: none;
 }
 
 .btn-info:hover {
-  background-color: #2563eb;
+  background-color: var(--blue-700);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
@@ -706,6 +718,7 @@ header {
   text-align: right;
   color: var(--gray-700);
 }
+
 
 /* Page title */
 .page-title {
